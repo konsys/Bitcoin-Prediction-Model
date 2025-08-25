@@ -92,7 +92,7 @@ async def fetch_and_log_prices():
             df.to_csv(f'bitcoin_prices_{current_date}.csv', index=False)
             
             # Wait for 1 second
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(1)
             
         except Exception as e:
             print(f"Error fetching prices: {e}")
