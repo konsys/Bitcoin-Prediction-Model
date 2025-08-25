@@ -45,7 +45,7 @@ async def fetch_trade_metrics(exchange, symbol):
 
 # Function to fetch prices
 async def fetch_price(exchange, symbol):
-    ticker = await exchange.fetch_ticker(symbol)
+    ticker = await exchange.fetch_ticker(symbol, {"timeframes": "1234d"})
     return ticker['last']
 
 # Function to fetch and log prices asynchronously
@@ -92,7 +92,7 @@ async def fetch_and_log_prices():
             df.to_csv(f'bitcoin_prices_{current_date}.csv', index=False)
             
             # Wait for 1 second
-            await asyncio.sleep(1)
+            # await asyncio.sleep(1)
             
         except Exception as e:
             print(f"Error fetching prices: {e}")
