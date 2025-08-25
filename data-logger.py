@@ -1,8 +1,10 @@
-import ccxt.pro as ccxt
+
 import pandas as pd
-from datetime import datetime
+import datetime 
 import asyncio
 import datetime
+import asyncio
+import ccxt.async_support as ccxt
 
 # Initialize exchanges
 exchanges = {
@@ -53,7 +55,7 @@ async def fetch_and_log_prices():
     while True:
         try:
             tasks = []
-            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             row = [now]
 
             for exchange_name, exchange in exchanges.items():
@@ -90,7 +92,7 @@ async def fetch_and_log_prices():
             df.to_csv(f'bitcoin_prices_{current_date}.csv', index=False)
             
             # Wait for 1 second
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
             
         except Exception as e:
             print(f"Error fetching prices: {e}")

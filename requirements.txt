@@ -6,3 +6,7 @@ matplotlib
 tensorflow
 keras
 requests
+cctx
+normalizer
+
+# source myenv/bin/activate
