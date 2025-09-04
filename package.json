@@ -1,0 +1,22 @@
+{
+  "name": "bitcoin-prediction-model",
+  "version": "1.0.0",
+  "description": "This repository contains scripts and machine learning models for predicting Bitcoin prices using Keras and Tensorflow.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "virt": "source venv/bin/activate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konsys/Bitcoin-Prediction-Model.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/konsys/Bitcoin-Prediction-Model/issues"
+  },
+  "homepage": "https://github.com/konsys/Bitcoin-Prediction-Model#readme"
+}
