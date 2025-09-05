@@ -1,68 +1,83 @@
+from sklearn.linear_model import Perceptron
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import pandas as pd
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore") 
 
-class Perceptron:
-    """
-    Персептронный классификатор.
+df = pd.read_csv('bitcoin.csv')
+df.head()
 
-    Параметры
-    ----------
-    eta : float
-        Скорость обучения (между 0.0 и 1.0)
-    n_iter : int
-        Кол-во проходов по обучающему набору.
-    random_state : int
-        Опорное значение генератора случайных чисел для инициализации весов.
+splitted = df['Date'].str.split('-', expand=True)
 
-    Атрибуты
-    ----------
-    w_ : 1d-array
-        Веса после подгонки.
-    b : scalar
-        Смещение после подгонки.
-    errors_ : list
-        Количество неправильных классификаций (обновлений) в каждой эпохе.
-    """
+df['year'] = splitted[0].astype('int')
+df['month'] = splitted[1].astype('int')
+df['day'] = splitted[2].astype('int')
+df['is_quarter_end'] = np.where(df['month']%3==0,1,0)
+df['open-close']  = df['Open'] - df['Close']
+df['low-high']  = df['Low'] - df['High']
+df['target'] = np.where(df['Close'].shift(-1) > df['Close'], 1, 0)
 
-    def __init__(self, eta=0.01, n_iter=50, random_state=1):
-        self.eta = eta
-        self.n_iter = n_iter
-        self.random_state = random_state
+    # Convert the 'Date' column to datetime objects
+df['Date'] = pd.to_datetime(df['Date']) 
 
-    def fit(self, X, y):
-        """
-        Обучение модели на тренировочных данных.
+features = df[['open-close', 'low-high', 'is_quarter_end']]
+target = df['target']
 
-        Параметры
-        ----------
-        X : array-like, shape = [n_samples, n_features]
-            Обучающий вектор, где n_samples - количество образцов,
-            а n_features - количество признаков.
-        y : array-like, shape = [n_samples]
-            Целевые значения.
+# X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.3, random_state=10)
 
-        Возвращаемые значения
-        ----------
-        self : object
-        """
-        rgen = np.random.RandomState(self.random_state)
-        self.w_ = rgen.normal(loc=0.0, scale=0.01, size=X.shape[1])
-        self.b = np.float_(0.)
-        self.errors_ = []
+X_train = features[:200]
+y_train = target[:200]
 
-        for _ in range(self.n_iter):
-            errors = 0
-            for xi, target in zip(X, y):
-                update = self.eta * (target - self.predict(xi))
-                self.w_ += update * xi
-                self.b += update
-                errors += int(update != 0.0)
-            self.errors_.append(errors)
-        return self
+X_test = features[201:]
+y_test = target[201:]
 
-    def net_input(self, X):
-        """Вычисление фактического входа"""
-        return np.dot(X, self.w_) + self.b
+# print(X_test)
 
-    def predict(self, X):
-        """Возвращает метки класса после пороговой функции"""
-        return np.where(self.net_input(X) >= 0.0, 1, 0)
+
+# 3. Initialize the Perceptron model
+# random_state is set for reproducibility
+model = Perceptron(eta0=0.03, max_iter=1000, tol=1e-2, shuffle=False)
+
+# 4. Train the Perceptron model using the training data
+model.fit(X_train, y_train)
+
+# # 5. Make predictions on the test set
+y_pred = model.predict(X_test[:])
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.4f}")
+
+
+dlrsAmount = 1000
+btAmount = 0.5
+closePrice = 0
+list = []
+for index, row in df[220:].iterrows():
+    pr = model.predict([row[['open-close', 'low-high', 'is_quarter_end']]])
+
+    predicted = pr[:][0]
+    closePrice = row['Close']
+    if(predicted == 1):
+        if dlrsAmount:
+            list.append(dlrsAmount)
+       
+            btAmount = btAmount + dlrsAmount / closePrice
+            dlrsAmount = 0
+    else:
+        if btAmount:
+            dlrsAmount = btAmount * closePrice
+            btAmount = 0
+        # if btAmount > 0 or dlrsAmount > 0:
+        #     print('dlrsAmount', dlrsAmount)
+        #     print('btAmount', btAmount)
+        #     print()
+    
+df = pd.DataFrame(list)
+
+print(df.describe())
+
+print(1, dlrsAmount)
+print(2, btAmount)
+print(3, btAmount * closePrice)
